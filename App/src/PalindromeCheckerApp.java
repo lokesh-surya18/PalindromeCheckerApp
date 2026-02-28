@@ -1,28 +1,87 @@
-import java.util.Scanner;
+import java.util.*;
 
-/**
- * MAIN CLASS - UseCase11PalindromeCheckerApp
- * ------------------------------------------
- * Use Case 11: Object-Oriented Palindrome Service
+/*
+ * ============================================================
+ * SRM CLASS - UseCase12PalindromeCheckerApp
+ * ============================================================
+ * Use Case 12: Strategy Pattern for Palindrome Algorithms
  *
  * Description:
- * This class demonstrates palindrome validation using
- * object-oriented design.
+ * This class demonstrates how different palindrome validation
+ * algorithms can be selected dynamically at runtime using
+ * the Strategy Design Pattern.
  *
- * The palindrome logic is encapsulated inside the
- * PalindromeService class.
- *
- * Improves:
- * - Reusability
- * - Readability
- * - Separation of concerns
+ * Key Concepts:
+ * - Interface
+ * - Polymorphism
+ * - Strategy Pattern
+ * ============================================================
  */
+
 public class PalindromeCheckerApp {
 
-    /**
-     * Application entry point for UC11.
-     * @param args Command-line arguments
-     */
+    // ============================================================
+    // INTERFACE - PalindromeStrategy
+    // ============================================================
+    interface PalindromeStrategy {
+        boolean check(String input);
+    }
+
+    // ============================================================
+    // CLASS - StackStrategy
+    // ============================================================
+    static class StackStrategy implements PalindromeStrategy {
+
+        @Override
+        public boolean check(String input) {
+
+            Stack<Character> stack = new Stack<>();
+
+            // Push all characters into stack
+            for (char c : input.toCharArray()) {
+                stack.push(c);
+            }
+
+            // Compare with original string
+            for (char c : input.toCharArray()) {
+                if (c != stack.pop()) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    // ============================================================
+    // CLASS - DequeStrategy
+    // ============================================================
+    static class DequeStrategy implements PalindromeStrategy {
+
+        @Override
+        public boolean check(String input) {
+
+            Deque<Character> deque = new ArrayDeque<>();
+
+            // Insert all characters into deque
+            for (char c : input.toCharArray()) {
+                deque.addLast(c);
+            }
+
+            // Compare front and rear
+            while (deque.size() > 1) {
+                if (!deque.removeFirst().equals(deque.removeLast())) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    // ============================================================
+    // MAIN METHOD
+    // ============================================================
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
@@ -30,59 +89,26 @@ public class PalindromeCheckerApp {
         System.out.print("Enter a string: ");
         String input = scanner.nextLine();
 
-        // Create service object
-        PalindromeService service = new PalindromeService();
+        System.out.println("Choose Strategy:");
+        System.out.println("1. Stack Strategy");
+        System.out.println("2. Deque Strategy");
+        System.out.print("Enter choice (1 or 2): ");
 
-        // Call service method
-        boolean result = service.checkPalindrome(input);
+        int choice = scanner.nextInt();
 
-        if (result) {
-            System.out.println("The given string is a Palindrome.");
+        PalindromeStrategy strategy;
+
+        if (choice == 1) {
+            strategy = new StackStrategy();
         } else {
-            System.out.println("The given string is NOT a Palindrome.");
+            strategy = new DequeStrategy();
         }
+
+        boolean result = strategy.check(input);
+
+        System.out.println("Input: " + input);
+        System.out.println("Is Palindrome? " + result);
 
         scanner.close();
-    }
-}
-
-
-/**
- * Service class that contains palindrome logic.
- */
-class PalindromeService {
-
-    /**
-     * Checks whether the input string is a palindrome.
-     *
-     * @param input Input string
-     * @return true if palindrome, false otherwise
-     */
-    public boolean checkPalindrome(String input) {
-
-        // Handle null or empty input
-        if (input == null || input.isEmpty()) {
-            return false;
-        }
-
-        // Convert to lowercase (optional improvement)
-        input = input.toLowerCase();
-
-        // Initialize pointers (as shown in hint on Page 2)
-        int start = 0;
-        int end = input.length() - 1;
-
-        // Compare characters moving inward
-        while (start < end) {
-
-            if (input.charAt(start) != input.charAt(end)) {
-                return false;
-            }
-
-            start++;
-            end--;
-        }
-
-        return true;
     }
 }
