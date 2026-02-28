@@ -1,113 +1,82 @@
 import java.util.*;
 
-/*
- * ============================================================
- * SRM CLASS - UseCase12PalindromeCheckerApp
- * ============================================================
- * Use Case 12: Strategy Pattern for Palindrome Algorithms
- *
- * Description:
- * This class demonstrates how different palindrome validation
- * algorithms can be selected dynamically at runtime using
- * the Strategy Design Pattern.
- *
- * Key Concepts:
- * - Interface
- * - Polymorphism
- * - Strategy Pattern
- * ============================================================
- */
-
 public class PalindromeCheckerApp {
 
-    // ============================================================
-    // INTERFACE - PalindromeStrategy
-    // ============================================================
-    interface PalindromeStrategy {
-        boolean check(String input);
+    // Method 1: Using Reverse String
+    public static boolean checkUsingReverse(String input) {
+        String reversed = new StringBuilder(input).reverse().toString();
+        return input.equalsIgnoreCase(reversed);
     }
 
-    // ============================================================
-    // CLASS - StackStrategy
-    // ============================================================
-    static class StackStrategy implements PalindromeStrategy {
+    // Method 2: Using Two Pointer Technique
+    public static boolean checkUsingTwoPointers(String input) {
+        int left = 0;
+        int right = input.length() - 1;
 
-        @Override
-        public boolean check(String input) {
-
-            Stack<Character> stack = new Stack<>();
-
-            // Push all characters into stack
-            for (char c : input.toCharArray()) {
-                stack.push(c);
+        while (left < right) {
+            if (Character.toLowerCase(input.charAt(left)) !=
+                    Character.toLowerCase(input.charAt(right))) {
+                return false;
             }
-
-            // Compare with original string
-            for (char c : input.toCharArray()) {
-                if (c != stack.pop()) {
-                    return false;
-                }
-            }
-
-            return true;
+            left++;
+            right--;
         }
+        return true;
     }
 
-    // ============================================================
-    // CLASS - DequeStrategy
-    // ============================================================
-    static class DequeStrategy implements PalindromeStrategy {
+    // Method 3: Using Deque
+    public static boolean checkUsingDeque(String input) {
+        Deque<Character> deque = new ArrayDeque<>();
 
-        @Override
-        public boolean check(String input) {
-
-            Deque<Character> deque = new ArrayDeque<>();
-
-            // Insert all characters into deque
-            for (char c : input.toCharArray()) {
-                deque.addLast(c);
-            }
-
-            // Compare front and rear
-            while (deque.size() > 1) {
-                if (!deque.removeFirst().equals(deque.removeLast())) {
-                    return false;
-                }
-            }
-
-            return true;
+        for (char ch : input.toLowerCase().toCharArray()) {
+            deque.addLast(ch);
         }
+
+        while (deque.size() > 1) {
+            if (!deque.removeFirst().equals(deque.removeLast())) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    // ============================================================
-    // MAIN METHOD
-    // ============================================================
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
-
         System.out.print("Enter a string: ");
         String input = scanner.nextLine();
 
-        System.out.println("Choose Strategy:");
-        System.out.println("1. Stack Strategy");
-        System.out.println("2. Deque Strategy");
-        System.out.print("Enter choice (1 or 2): ");
+        // Remove spaces for fair comparison
+        input = input.replaceAll("\\s+", "");
 
-        int choice = scanner.nextInt();
+        System.out.println("\n----- Performance Comparison -----");
 
-        PalindromeStrategy strategy;
+        // Reverse Method
+        long start1 = System.nanoTime();
+        boolean result1 = checkUsingReverse(input);
+        long end1 = System.nanoTime();
+        long time1 = end1 - start1;
 
-        if (choice == 1) {
-            strategy = new StackStrategy();
-        } else {
-            strategy = new DequeStrategy();
-        }
+        // Two Pointer Method
+        long start2 = System.nanoTime();
+        boolean result2 = checkUsingTwoPointers(input);
+        long end2 = System.nanoTime();
+        long time2 = end2 - start2;
 
-        boolean result = strategy.check(input);
+        // Deque Method
+        long start3 = System.nanoTime();
+        boolean result3 = checkUsingDeque(input);
+        long end3 = System.nanoTime();
+        long time3 = end3 - start3;
 
-        System.out.println("Input: " + input);
-        System.out.println("Is Palindrome? " + result);
+        // Display Results
+        System.out.println("\nInput: " + input);
+        System.out.println("Is Palindrome? " + result1); // all results should match
+
+        System.out.println("\nExecution Time (nanoseconds):");
+        System.out.println("Reverse Method      : " + time1 + " ns");
+        System.out.println("Two Pointer Method  : " + time2 + " ns");
+        System.out.println("Deque Method        : " + time3 + " ns");
 
         scanner.close();
     }
